@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 // import CodeMirror from 'codemirror'
 import { Icon } from '@iconify/react';
 import Preview from './Preview';
@@ -188,11 +188,11 @@ const MardownEditor = () => {
                 <span className="toolbar__button">
                     <Icon icon="bi:card-image" width="20" />
                 </span>
-                <span className="toolbar__button" onClick={() => { setPreview(!preview) }}>
+                <span className="toolbar__button" title="Preview" onClick={() => { setPreview(!preview) }}>
                     {preview ? <Icon icon="icon-park-outline:preview-open" width="20" />
                         : <Icon icon="icon-park-outline:preview-close-one" width="20" />}
                 </span>
-                {preview ? <span className="toolbar__button" onClick={() => { setIsSyncScroll(!isSyncScroll) }}>
+                {preview ? <span className="toolbar__button" title="Sync Scroll" onClick={() => { setIsSyncScroll(!isSyncScroll) }}>
                     {isSyncScroll ? <Icon icon="fluent:arrow-sync-16-filled" width="20" />
                         : <Icon icon="fluent:arrow-sync-off-16-filled" width="20" />}
                 </span> : ""}
