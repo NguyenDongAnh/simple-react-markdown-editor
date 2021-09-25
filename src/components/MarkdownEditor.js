@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import CodeMirror from 'codemirror'
 import ToolBar from './ToolBar';
 import Preview from './Preview';
@@ -10,7 +10,9 @@ import 'codemirror/mode/python/python'
 import 'codemirror/mode/php/php'
 import 'codemirror/mode/yaml/yaml'
 
+let count = 0
 const MardownEditor = () => {
+    console.log(++count)
     const [preview, setPreview] = useState(true);
     const [isSyncScroll, setIsSyncScroll] = useState(true);
     const [editor, setEditor] = useState(null);
@@ -39,7 +41,7 @@ const MardownEditor = () => {
         const editorScroll = document.querySelector('.CodeMirror-vscrollbar')
         const previewScroll = document.querySelector('.preview')
 
-        function syncScrollPosition(scrolledPane, pane) {
+        const syncScrollPosition = (scrolledPane, pane) => {
             const {
                 scrollTop,
                 scrollHeight,
@@ -57,10 +59,12 @@ const MardownEditor = () => {
 
         const removeEvents = (leftPane, rightPane) => {
             leftPane.onscroll = null;
-            rightPane.onscroll = null;
+            if (isSyncScroll && preview)
+                rightPane.onscroll = null;
         }
 
         const handleSyncScroll = (leftPane, rightPane) => {
+            syncScrollPosition(leftPane, rightPane)
             let isSyncLeftScroll = false;
             let isSyncRightScroll = false;
             leftPane.onscroll = function () {
@@ -80,13 +84,13 @@ const MardownEditor = () => {
             }
         }
 
-        isSyncScroll ? handleSyncScroll(editorScroll, previewScroll) : removeEvents(editorScroll, previewScroll);
+        isSyncScroll && preview ? handleSyncScroll(editorScroll, previewScroll) : removeEvents(editorScroll, previewScroll);
 
         return () => {
 
         }
 
-    }, [isSyncScroll])
+    }, [isSyncScroll, preview])
 
     return (
         <CodeMirrorContext.Provider value={editor}>

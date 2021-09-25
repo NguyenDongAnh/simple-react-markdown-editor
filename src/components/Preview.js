@@ -18,7 +18,6 @@ const Preview = (props) => {
     const [content, setContent] = useState('');
     useEffect(() => {
         const renderContent = () => {
-            console.log(editor)
             setContent(editor.doc.getValue())
             editor.on('change', (editor) => {
                 setTimeout(() => { setContent(editor.doc.getValue()) })
