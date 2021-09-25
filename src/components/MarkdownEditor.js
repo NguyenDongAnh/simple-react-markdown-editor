@@ -1,93 +1,39 @@
-import React, { useState, useCallback, useEffect } from 'react'
-// import CodeMirror from 'codemirror'
-import { Icon } from '@iconify/react';
+import React, { useState, useCallback, useEffect, useRef } from 'react'
+import CodeMirror from 'codemirror'
+import ToolBar from './ToolBar';
 import Preview from './Preview';
-import TextEditor from './TextEditor';
+import CodeMirrorContext from '../context/CodeMirrorContext';
+import 'codemirror/theme/nord.css'
+import 'codemirror/mode/gfm/gfm'
+import 'codemirror/mode/javascript/javascript'
+import 'codemirror/mode/python/python'
+import 'codemirror/mode/php/php'
+import 'codemirror/mode/yaml/yaml'
 
 const MardownEditor = () => {
     const [preview, setPreview] = useState(true);
     const [isSyncScroll, setIsSyncScroll] = useState(true);
     const [editor, setEditor] = useState(null);
-    const [content, setContent] = useState('');
 
-    const textFormat = useCallback(async (format) => {
-        const cursor = editor.getCursor()
-        const line = cursor.line
-        const ch = cursor.ch
-        const l = editor.getLine(line)
-        const s = editor.getSelection();
-        let t;
-        switch (format) {
-            case "bold":
-                if (s) {
-                    t = s.slice(0, 2) === '**' && s.slice(-2) === '**';
-                    editor.replaceSelection(t ? s.slice(2, -2) : '**' + s + '**', 'around');
-                } else {
-                    editor.replaceRange('****', { line: line, ch: ch })
-                    editor.setCursor({ line: line, ch: t ? ch - 2 : ch + 2 })
-                    editor.focus()
-                }
-                break;
-            case "italic":
-                if (s) {
-                    t = s.slice(0, 1) === '*' && s.slice(-1) === '*';
-                    editor.replaceSelection(t ? s.slice(1, -1) : '*' + s + '*', 'around');
-                } else {
-                    editor.replaceRange('**', { line: line, ch: ch })
-                    editor.setCursor({ line: line, ch: t ? ch - 1 : ch + 1 })
-                    editor.focus()
-                }
-                break;
-            case "strike":
-                if (s) {
-                    t = s.slice(0, 2) === '~~' && s.slice(-2) === '~~';
-                    editor.replaceSelection(t ? s.slice(2, -2) : '~~' + s + '~~', 'around');
-                } else {
-                    editor.replaceRange('~~~~', { line: line, ch: ch })
-                    editor.setCursor({ line: line, ch: t ? ch - 2 : ch + 2 })
-                    editor.focus()
-                }
-                break;
-            case "heading1":
-                t = l.slice(0, 2) === '# '
-                editor.replaceRange(t ? l.slice(2, l.length) : '# ' + l, { line: line, ch: 0 }, { line: line, ch: l.length });
-                editor.setCursor({ line: line, ch: t ? ch - 2 : ch + 2 })
-                editor.focus()
-                break;
-            case "heading2":
-                t = l.slice(0, 3) === '## '
-                editor.replaceRange(t ? l.slice(3, l.length) : '## ' + l, { line: line, ch: 0 }, { line: line, ch: l.length });
-                editor.setCursor({ line: line, ch: t ? ch - 3 : ch + 3 })
-                editor.focus()
-                break;
-            case "heading3":
-                t = l.slice(0, 4) === '### '
-                editor.replaceRange(t ? l.slice(4, l.length) : '### ' + l, { line: line, ch: 0 }, { line: line, ch: l.length });
-                editor.setCursor({ line: line, ch: t ? ch - 4 : ch + 4 })
-                editor.focus()
-                break;
-            case "heading4":
-                t = l.slice(0, 5) === '#### '
-                editor.replaceRange(t ? l.slice(5, l.length) : '#### ' + l, { line: line, ch: 0 }, { line: line, ch: l.length });
-                editor.setCursor({ line: line, ch: t ? ch - 5 : ch + 5 })
-                editor.focus()
-                break;
-            case "quote":
-                t = l.slice(0, 2) === '> '
-                editor.replaceRange(t ? l.slice(2, l.length).trim() : '> ' + l, { line: line, ch: 0 }, { line: line, ch: l.length });
-                editor.setCursor({ line: line, ch: t ? ch - 2 : ch + 2 })
-                editor.focus()
-                break;
-            case "code":
-                if (s) {
-                    t = s.slice(0, 1) === '`' || (s.slice(0, 1) === '`' && s.slice(0, -1) === '`')
-                    editor.replaceRange(t ? l.slice(2, l.length) : '> ' + l, { line: line, ch: 0 }, { line: line, ch: l.length });
-                }
-                break;
-            default:
-                break;
+    const textArea = useRef(null)
+
+
+    useEffect(() => {
+        const cm = CodeMirror.fromTextArea(textArea.current, {
+            lineNumbers: true,
+            mode: {
+                name: "gfm",
+                highlightFormatting: true
+            },
+            theme: "nord",
+            lineWrapping: true,
+            tabSize: 2
+        },
+        );
+        setEditor(cm);
+        return () => {
         }
-    }, [editor])
+    }, [])
 
     useEffect(() => {
         const editorScroll = document.querySelector('.CodeMirror-vscrollbar')
@@ -143,71 +89,129 @@ const MardownEditor = () => {
     }, [isSyncScroll])
 
     return (
-        <div style={{ position: "relative", height: "100%" }}>
-            <div className="toolbar">
-                <span className="toolbar__button" onClick={() => {
-                    editor.undo();
-                }}>
-                    <Icon icon="ic:baseline-undo" width="20" />
-                </span>
-                <span className="toolbar__button" onClick={() => {
-                    editor.redo()
-                }}>
-                    <Icon icon="ic:baseline-redo" width="20" />
-                </span>
-                <span className="toolbar__button" title="Bold" onClick={() => { textFormat("bold") }}>
-                    <Icon icon="ant-design:bold-outlined" width="20" />
-                </span>
-                <span className="toolbar__button" title="Italic" onClick={() => { textFormat("italic") }}>
-                    <Icon icon="ant-design:italic-outlined" width="20" />
-                </span>
-                <span className="toolbar__button" title="Strike" onClick={() => { textFormat("strike") }}>
-                    <Icon icon="ant-design:strikethrough-outlined" width="20" />
-                </span>
-                <span className="toolbar__button" title="Heading1" onClick={() => { textFormat("heading1") }}>
-                    <Icon icon="ci:heading-h1" width="20" />
-                </span>
-                <span className="toolbar__button" title="Heading2" onClick={() => { textFormat("heading2") }}>
-                    <Icon icon="ci:heading-h2" width="20" />
-                </span>
-                <span className="toolbar__button" title="Heading3" onClick={() => { textFormat("heading3") }}>
-                    <Icon icon="ci:heading-h3" width="20" />
-                </span>
-                <span className="toolbar__button" title="Heading4" onClick={() => { textFormat("heading4") }}>
-                    <Icon icon="ci:heading-h4" width="20" />
-                </span>
-                <span className="toolbar__button" title="Quote" onClick={() => { textFormat("quote") }}>
-                    <Icon icon="fontisto:quote-right" width="15" />
-                </span>
-                <span className="toolbar__button">
-                    <Icon icon="entypo:code" width="20" />
-                </span>
-                <span className="toolbar__button">
-                    <Icon icon="bi:link-45deg" width="20" />
-                </span>
-                <span className="toolbar__button">
-                    <Icon icon="bi:card-image" width="20" />
-                </span>
-                <span className="toolbar__button" title="Preview" onClick={() => { setPreview(!preview) }}>
-                    {preview ? <Icon icon="icon-park-outline:preview-open" width="20" />
-                        : <Icon icon="icon-park-outline:preview-close-one" width="20" />}
-                </span>
-                {preview ? <span className="toolbar__button" title="Sync Scroll" onClick={() => { setIsSyncScroll(!isSyncScroll) }}>
-                    {isSyncScroll ? <Icon icon="fluent:arrow-sync-16-filled" width="20" />
-                        : <Icon icon="fluent:arrow-sync-off-16-filled" width="20" />}
-                </span> : ""}
-                <span className="toolbar__button" >
-                    <Icon icon="bi:file-earmark-arrow-down-fill" width="20" />
-                </span>
-            </div>
-
-            <div className="layout__panel">
-                <div className="editor" style={{ maxWidth: preview ? "50%" : "100%" }}>
-                    <TextEditor setEditor={setEditor} setContent={setContent} />
+        <CodeMirrorContext.Provider value={editor}>
+            <div style={{ position: "relative", height: "100%" }}>
+                <ToolBar preview={preview} setPreview={setPreview} isSyncScroll={isSyncScroll} setIsSyncScroll={setIsSyncScroll} />
+                <div className="layout__panel">
+                    <div className="editor" style={{ maxWidth: preview ? "50%" : "100%" }}>
+                        <textarea style={{ display: "none" }} ref={textArea}
+                            value={
+                                `# A demo of \`react-markdown\`
+            
+\`react-markdown\` is a markdown component for React.
+            
+👉 Changes are re-rendered as you type.
+            
+👈 Try writing some markdown on the left.
+            
+## Overview
+            
+* Follows [CommonMark](https://commonmark.org)
+* Optionally follows [GitHub Flavored Markdown](https://github.github.com/gfm/)
+* Renders actual React elements instead of using \`dangerouslySetInnerHTML\`
+* Lets you define your own components (to render \`MyHeading\` instead of \`h1\`)
+* Has a lot of plugins
+            
+## Table of contents
+            
+Here is an example of a plugin in action
+([\`remark-toc\`](https://github.com/remarkjs/remark-toc)).
+This section is replaced by an actual table of contents.
+            
+## Syntax highlighting
+            
+Here is an example of a plugin to highlight code:
+[\`rehype-highlight\`](https://github.com/rehypejs/rehype-highlight).
+            
+\`\`\`js
+import React from 'react'
+import ReactDOM from 'react-dom'
+import ReactMarkdown from 'react-markdown'
+import rehypeHighlight from 'rehype-highlight'
+            
+ReactDOM.render(
+  <ReactMarkdown rehypePlugins={[rehypeHighlight]>{'# Your markdown here'}</ReactMarkdown>,
+  document.querySelector('#content')
+)
+\`\`\`
+            
+Pretty neat, eh?
+            
+## GitHub flavored markdown (GFM)
+            
+For GFM, you can *also* use a plugin:
+[\`remark-gfm\`](https://github.com/remarkjs/react-markdown#use).
+It adds support for GitHub-specific extensions to the language:
+tables, strikethrough, tasklists, and literal URLs.
+            
+These features **do not work by default**.
+👆 Use the toggle above to add the plugin.
+            
+| Feature    | Support              |
+| ---------: | :------------------- |
+| CommonMark | 100%                 |
+| GFM        | 100% w/ \`remark-gfm\` |
+            
+~~strikethrough~~
+            
+* [ ] task list
+* [x] checked item
+            
+https://example.com
+            
+## HTML in markdown
+            
+⚠️ HTML in markdown is quite unsafe, but if you want to support it, you can
+use [\`rehype-raw\`](https://github.com/rehypejs/rehype-raw).
+You should probably combine it with
+[\`rehype-sanitize\`](https://github.com/rehypejs/rehype-sanitize).
+            
+<blockquote>
+👆 Use the toggle above to add the plugin.
+</blockquote>
+            
+## Components
+            
+You can pass components to change things:
+            
+\`\`\`js
+import React from 'react'
+import ReactDOM from 'react-dom'
+import ReactMarkdown from 'react-markdown'
+import MyFancyRule from './components/my-fancy-rule.js'
+            
+ReactDOM.render(
+  <ReactMarkdown
+    components={{
+      // Use h2s instead of h1s
+      h1: 'h2',
+      // Use a component instead of hrs
+      hr: ({node, ...props}) => <MyFancyRule {...props}/>;
+  }}
+  # Your markdown here
+  </ReactMarkdown>,
+  document.querySelector('#content')
+)
+\`\`\`
+            
+## More info?
+            
+Much more info is available in the
+[readme on GitHub](https://github.com/remarkjs/react-markdown)!
+            
+***
+            
+A component by [Espen Hovlandsdal](https://espen.codes/)
+`
+                            }
+                            readOnly
+                        >
+                        </textarea>
+                    </div>
+                    {preview ? <Preview /> : ""}
                 </div>
-                {preview ? <Preview markdown={content} /> : ""}
-            </div>
-        </div >
+            </div >
+        </CodeMirrorContext.Provider>
     )
 }
 
