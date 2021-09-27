@@ -10,8 +10,13 @@ import rehypeRaw from "rehype-raw";
 import 'katex/dist/katex.min.css';
 import rehypeKatex from "rehype-katex";
 // import rehypeSanitize from 'rehype-sanitize'
-import rehypeHighlight from 'rehype-highlight'
+
 import CodeMirrorContext from '../context/CodeMirrorContext';
+import { lowlight } from 'lowlight';
+import { toHtml } from 'hast-util-to-html';
+import parseReact from 'html-react-parser';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { Icon } from '@iconify/react';
 
 const Preview = (props) => {
     const editor = useContext(CodeMirrorContext)
@@ -26,6 +31,7 @@ const Preview = (props) => {
         if (editor) {
             renderContent();
         }
+
         return () => {
 
         }
@@ -37,7 +43,35 @@ const Preview = (props) => {
                     {...props}
                     children={content}
                     remarkPlugins={[remarkGFM, remarkMath]}
-                    rehypePlugins={[rehypeRaw, rehypeKatex, [rehypeHighlight, { ignoreMissing: true, subset: true }]]}
+                    // rehypePlugins={[rehypeRaw, rehypeKatex, [rehypeHighlight, { ignoreMissing: true, subset: true }]]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                    components={{
+                        code({ node, children, inline, className, ...props }) {
+                            if (!inline) {
+                                const tree = lowlight.highlightAuto(children[0])
+                                return (
+                                    <div className="code-block">
+                                        {children ? (
+                                            <div className="clipboard">
+                                                <CopyToClipboard text={String(children).replace(/\n$/, '')}>
+                                                    <Icon icon="line-md:clipboard-arrow-twotone"
+                                                        inline={true}
+                                                    />
+                                                </CopyToClipboard>
+                                            </div>) : ""}
+                                        <code className={"hljs " + className} {...props}>
+                                            {parseReact(toHtml(tree))}
+                                        </code>
+                                    </div>
+                                )
+                            }
+                            return (
+                                <code className={className} {...props}>
+                                    {children}
+                                </code>
+                            )
+                        }
+                    }}
                 />
             </div>
         </div>
