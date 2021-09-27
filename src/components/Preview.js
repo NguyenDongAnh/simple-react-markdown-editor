@@ -50,19 +50,17 @@ const Preview = (props) => {
                             if (!inline) {
                                 const tree = lowlight.highlightAuto(children[0])
                                 return (
-                                    <div className="code-block">
+                                    <>
                                         {children ? (
                                             <div className="clipboard">
                                                 <CopyToClipboard text={String(children).replace(/\n$/, '')}>
-                                                    <Icon icon="line-md:clipboard-arrow-twotone"
-                                                        inline={true}
-                                                    />
+                                                    <Icon icon="bx:bxs-copy" />
                                                 </CopyToClipboard>
                                             </div>) : ""}
                                         <code className={"hljs " + className} {...props}>
                                             {parseReact(toHtml(tree))}
                                         </code>
-                                    </div>
+                                    </>
                                 )
                             }
                             return (
