@@ -10,9 +10,7 @@ import 'codemirror/mode/python/python'
 import 'codemirror/mode/php/php'
 import 'codemirror/mode/yaml/yaml'
 
-let count = 0
 const MardownEditor = () => {
-    console.log(++count)
     const [preview, setPreview] = useState(true);
     const [isSyncScroll, setIsSyncScroll] = useState(true);
     const [editor, setEditor] = useState(null);

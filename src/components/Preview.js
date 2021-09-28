@@ -52,11 +52,19 @@ const Preview = (props) => {
                                 return (
                                     <>
                                         {children ? (
-                                            <div className="clipboard">
-                                                <CopyToClipboard text={String(children).replace(/\n$/, '')}>
+                                            <CopyToClipboard text={String(children).replace(/\n$/, '')}>
+                                                <div className="clipboard" onClick={
+                                                    (e) => {
+                                                        e.target.classList.add("tooltipped");
+                                                        setTimeout(() => {
+                                                            e.target.classList.remove("tooltipped");
+                                                        }, 2000)
+                                                    }
+                                                }>
                                                     <Icon icon="bx:bxs-copy" />
-                                                </CopyToClipboard>
-                                            </div>) : ""}
+
+                                                </div>
+                                            </CopyToClipboard>) : ""}
                                         <code className={"hljs " + className} {...props}>
                                             {parseReact(toHtml(tree))}
                                         </code>

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useContext } from 'react'
+import React, { useCallback, useContext } from 'react'
 import CodeMirrorContext from '../context/CodeMirrorContext'
 import { Icon } from '@iconify/react';
 
@@ -176,7 +176,7 @@ const ToolBar = ({ preview, setPreview, isSyncScroll, setIsSyncScroll, ...props 
     }, [editor])
 
     return (
-        <div className="toolbar">
+        <div className="toolbar" {...props}>
             <span className="toolbar__group">
                 <span className="toolbar__button" onClick={() => {
                     editor.undo();
@@ -254,16 +254,12 @@ const ToolBar = ({ preview, setPreview, isSyncScroll, setIsSyncScroll, ...props 
                     {isSyncScroll ? <Icon icon="fluent:arrow-sync-16-filled" width="20" />
                         : <Icon icon="fluent:arrow-sync-off-16-filled" width="20" />}
                 </span> : ""}
-                <span className="toolbar__button" title="Download .md File">
-                    <Icon icon="bi:file-earmark-arrow-down-fill" width="20" />
-                </span>
+            </span>
+            <span className="toolbar__button" title="Download .md File">
+                <Icon icon="bi:file-earmark-arrow-down-fill" width="20" />
             </span>
         </div>
     )
 }
 
 export default ToolBar
-
-// | Column1      | Column 2      | Column 3      |
-// | -------------| --------------| ------------- |
-// | Text         | Text          | Text          |
