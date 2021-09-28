@@ -9,6 +9,7 @@ import 'codemirror/mode/javascript/javascript'
 import 'codemirror/mode/python/python'
 import 'codemirror/mode/php/php'
 import 'codemirror/mode/yaml/yaml'
+import { Icon } from '@iconify/react';
 
 const MardownEditor = () => {
     const [preview, setPreview] = useState(true);
@@ -93,7 +94,25 @@ const MardownEditor = () => {
     return (
         <CodeMirrorContext.Provider value={editor}>
             <div style={{ position: "relative", height: "100%" }}>
-                <ToolBar preview={preview} setPreview={setPreview} isSyncScroll={isSyncScroll} setIsSyncScroll={setIsSyncScroll} />
+                <div className="toolbar">
+                    <ToolBar preview={preview} setPreview={setPreview} isSyncScroll={isSyncScroll} setIsSyncScroll={setIsSyncScroll} />
+                    <span className="toolbar__button" title="Download .md File" style={{ marginLeft: "10px" }} onClick={
+                        () => {
+                            var element = document.createElement('a');
+                            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(editor.doc.getValue()));
+                            element.setAttribute('download', "filename.md");
+
+                            element.style.display = 'none';
+                            document.body.appendChild(element);
+
+                            element.click();
+
+                            document.body.removeChild(element);
+                        }
+                    }>
+                        <Icon icon="bi:file-earmark-arrow-down-fill" width="20" inline={true} />
+                    </span>
+                </div>
                 <div className="layout__panel">
                     <div className="editor" style={{ maxWidth: preview ? "50%" : "100%" }}>
                         <textarea style={{ display: "none" }} ref={textArea}

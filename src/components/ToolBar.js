@@ -176,7 +176,7 @@ const ToolBar = ({ preview, setPreview, isSyncScroll, setIsSyncScroll, ...props 
     }, [editor])
 
     return (
-        <div className="toolbar" {...props}>
+        <>
             <span className="toolbar__group">
                 <span className="toolbar__button" onClick={() => {
                     editor.undo();
@@ -243,7 +243,7 @@ const ToolBar = ({ preview, setPreview, isSyncScroll, setIsSyncScroll, ...props 
                     <Icon icon="bi:card-image" width="20" onClick={() => { textFormat("image") }} />
                 </span>
             </span>
-            <span className="toolbar__group" style={{ border: "none" }}>
+            <span className="toolbar__group">
                 <span className="toolbar__button" title="Preview" onClick={() => {
                     setPreview(!preview)
                 }}>
@@ -255,10 +255,7 @@ const ToolBar = ({ preview, setPreview, isSyncScroll, setIsSyncScroll, ...props 
                         : <Icon icon="fluent:arrow-sync-off-16-filled" width="20" />}
                 </span> : ""}
             </span>
-            <span className="toolbar__button" title="Download .md File">
-                <Icon icon="bi:file-earmark-arrow-down-fill" width="20" />
-            </span>
-        </div>
+        </>
     )
 }
 
